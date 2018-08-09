@@ -828,6 +828,8 @@ Remember: `raster()` fills cells row-wise (unlike `matrix()`) starting at the up
 new_raster2 = raster(nrow = 6, ncol = 6, res = 0.5, 
                      xmn = -1.5, xmx = 1.5, ymn = -1.5, ymx = 1.5,
                      vals = 1:36)
+plot(new_raster2) #plot new raster
+text(new_raster2) #layer new raster with cell value labels
 ```
 
 For still further ways of creating a raster object have a look at the help file - `?raster`.
