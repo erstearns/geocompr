@@ -1,0 +1,334 @@
+---
+title: "Geocomputation in R: Chapter 2 - Geographic Data in R"
+output: html_notebook
+---
+
+Set Up
+```{r}
+rm(list = ls())
+pacman::p_load(sf, raster, spDataLarge, spData,leaflet, sp)
+```
+
+# 2.1 Vector Data 
+Using 'world' dataset provided by spData (to see all datasets loaded: nowosad.github.io/spData)
+
+## 2.1.1 Intro to sf 
+
+World is a spatial object containing spatial and attribute columns, check those out:
+```{r}
+names(world)
+```
+Visualize (sp equivalent is spplot())
+```{r}
+plot(world)
+```
+
+Summary works to provide an overview of vars within 'world' object
+```{r}
+summary(world)
+```
+
+sf objects easy to subset (geometry alwasy kept unless deliberately removed, thus do not need to include geom col when subsetting)
+```{r}
+world[1:2,1:3]
+```
+
+
+## 2.1.2 Why sf? 
+Can convert sf objects to spatial class used in sp if necessary (e.g. using a package that doesn't support sf objects yet)
+```{r}
+world_sp <- as(world, Class = "Spatial")
+```
+
+Can convert back to sf in same way or:
+```{r}
+world_sf <- st_as_sf(world_sp,"sf")
+```
+
+
+## 2.1.3 basic map making 
+
+Plot 2 variables
+```{r}
+plot(world[3:4])
+```
+
+
+
+Plot 1 variable
+```{r}
+plot(world["pop"])
+```
+
+We will subset and combine countries in the world object, which creates a single object representing Asia:
+```{r}
+asia <- world[world$continent == "Asia",]
+asia <- st_union(asia)
+```
+
+
+We can now plot the Asian continent over a map of the world. 
+Note, however, that this only works if the initial plot has only one layer:
+*this code correct now -- reported as an issue -- that this only works when the initial plot has only one facet and when reset (which resets plot settings) is set to FALSE
+```{r}
+plot(world["pop"],reset = FALSE)
+plot(asia,add=TRUE,col="red")
+```
+
+## 2.1.4 Base plot arguments
+
+We will see one way of how to do a spatial overlay in sf. First, we convert the countries of the world into centroids, and then subset those in Asia. Finally, the summary command tells us how many centroids (countries) are part of Asia (43) and how many are not (134).
+```{r}
+world_centroids <-  st_centroid(world)
+sel_asia <- st_intersects(world_centroids,asia,sparse=FALSE)
+```
+
+So how many centroids (countries) aer part of asia an how many are not?
+```{r}
+summary(sel_asia)
+```
+
+To make the area of circles proportional to population, the cex argument can be used as follows (see Figure 2.6 created with the code below and the exercises in section 2.5):
+*this code correct now -- reported as an issue and bug was fixed
+
+```{r}
+world_proj = st_transform(world, "+proj=eck4")
+world_cents = st_centroid(world_proj, of_largest_polygon = TRUE)
+par(mar = c(0, 0, 0, 0))
+plot(world_proj["continent"], reset = FALSE, main = "", key.pos = NULL)
+g = st_graticule()
+g = st_transform(g, crs = "+proj=eck4")
+plot(g$geometry, add = TRUE, col = "lightgrey")
+cex = sqrt(world$pop) / 10000
+#To get black circles:
+plot(st_geometry(world_cents), add = TRUE, cex = cex, lwd = 2, graticule = T)
+#To get colored circles:
+#plot((world_centroids_largest), add = TRUE, cex = sqrt(world$pop)/10000, lwd = 2)
+```
+
+## 2.1.6 Simple feature geometries -  (sfg) objects
+
+Can create sfg objects from 3 R native data types - numeric vectors, matrices, and lists
+#### 1. to create points from numeric vectors:
+
+```{r}
+#2D point
+st_point(c(5, 2)) # XY point
+#3D point
+st_point(c(5, 2, 3)) # XYZ point
+#3D point
+st_point(c(5, 2, 1), dim = "XYM") # XYM point, only XYM type needs to be specified using a dim argument.
+#4D point
+st_point(c(5, 2, 3, 1)) # XYZM point
+```
+
+
+
+#### 2. to create multipoint and linestring objects from matrices:
+the rbind function simplifies the creation of matrices
+```{r}
+## MULTIPOINT
+multipoint_matrix = rbind(c(5, 2), c(1, 3), c(3, 4), c(3, 2))
+st_multipoint(multipoint_matrix)
+
+## LINESTRING
+linestring_matrix = rbind(c(1, 5), c(4, 4), c(4, 1), c(2, 2), c(3, 2))
+st_linestring(linestring_matrix)
+
+```
+
+
+#### 3. to create multilinestrings, (multi-)polygons and geometry collections, use lists
+```{r}
+## MULTILINESTRING
+multilinestring_list = list(rbind(c(1, 5), c(4, 4), c(4, 1), c(2, 2), c(3, 2)), 
+                            rbind(c(1, 2), c(2, 4)))
+st_multilinestring((multilinestring_list))
+
+## POLYGON
+polygon_list = list(rbind(c(1, 5), c(2, 2), c(4, 1), c(4, 4), c(1, 5)))
+st_polygon(polygon_list)
+
+## POLYGON with a hole - ?? I wonder if important to create border and hole separate then join in a list or if can create in same way a multipolygon created below; likely just illustrative on their part
+polygon_border = rbind(c(1, 5), c(2, 2), c(4, 1), c(4, 4), c(1, 5))
+polygon_hole = rbind(c(2, 4), c(3, 4), c(3, 3), c(2, 3), c(2, 4))
+polygon_with_hole_list = list(polygon_border, polygon_hole)
+st_polygon(polygon_with_hole_list)
+
+## MULTIPOLYGON
+multipolygon_list = list(list(rbind(c(1, 5), c(2, 2), c(4, 1), c(4, 4), c(1, 5))),
+                         list(rbind(c(0, 2), c(1, 2), c(1, 3), c(0, 3), c(0, 2))))
+st_multipolygon(multipolygon_list)
+
+## GEOMETRYCOLLECTION
+gemetrycollection_list = list(st_multipoint(multipoint_matrix),
+                              st_linestring(linestring_matrix))
+st_geometrycollection(gemetrycollection_list)
+
+```
+
+
+## 2.1.7 Simple frature geometry columns (sfc) 
+One sfg object contains only a single simple feature geometry. A simple feature geometry column (sfc) is a list of sfg objects, which is additionally able to contain information about the coordinate reference system in use. For instance, to combine two simple features into one object with two features, we can use the st_sfc() function. This is important since sfc represents the geometry column in sf data frames.
+In most cases, an sfc object contains objects of the same geometry type:
+```{r}
+# sfc POINT: taking 2 points, or 2 objects,  and combining into one object with 2 features
+point1 = st_point(c(5, 2))
+point2 = st_point(c(1, 3))
+points_sfc = st_sfc(point1, point2)
+points_sfc
+
+# sfc POLYGON
+polygon_list1 = list(rbind(c(1, 5), c(2, 2), c(4, 1), c(4, 4), c(1, 5)))
+polygon1 = st_polygon(polygon_list1)
+polygon_list2 = list(rbind(c(0, 2), c(1, 2), c(1, 3), c(0, 3), c(0, 2)))
+polygon2 = st_polygon(polygon_list2)
+st_sfc(polygon1, polygon2)
+
+# sfc MULTILINESTRING
+multilinestring_list1 = list(rbind(c(1, 5), c(4, 4), c(4, 1), c(2, 2), c(3, 2)), 
+                             rbind(c(1, 2), c(2, 4)))
+multilinestring1 = st_multilinestring((multilinestring_list1))
+multilinestring_list2 = list(rbind(c(2, 9), c(7, 9), c(5, 6), c(4, 7), c(2, 7)), 
+                             rbind(c(1, 7), c(3, 8)))
+multilinestring2 = st_multilinestring((multilinestring_list2))
+st_sfc(multilinestring1, multilinestring2)
+
+```
+
+It is also possible to create sfc objects from sfg objects with different geometry types --> sfc geometry objects
+```{r}
+# sfc GEOMETRY
+point_multilinestring_sfc = st_sfc(point1, multilinestring1)
+st_geometry_type(point_multilinestring_sfc)
+
+```
+
+
+sfc objects can additionally store information on the coordinate reference systems (CRS). To specify a certain CRS, we can use the epsg (SRID) or proj4string attributes of an sfc object. 
+The default value of epsg (SRID) and proj4string is NA (Not Available) (saw this when running this section of code)
+```{r}
+st_crs(points_sfc)
+```
+
+**IMPORTANT NOTE: All geometries in an sfc object must have the same CRS**
+
+Can add coordinate reference system as a crs argument of st_sfc() 
+This argument accepts either an integer with the epsg code (for example, 4326) or a proj4string character string (for example, "+proj=longlat +datum=WGS84 +no_defs")
+```{r}
+# EPSG definition
+points_sfc_wgs = st_sfc(point1, point2, crs = 4326)
+st_crs(points_sfc_wgs)
+
+# PROJ4STRING definition
+st_sfc(point1, point2, crs = "+proj=longlat +datum=WGS84 +no_defs")
+
+```
+
+
+For example, we can set the UTM Zone 11N projection with epsg code 2955: will see that proj4string definition automatically added
+```{r}
+st_sfc(point1, point2, crs = 2955)
+```
+
+Doing same as above using proj4string definition -- epsg string of result remained empty bc no general method to convert
+```{r}
+# from proj4string to epsg
+st_sfc(point1, point2, crs = "+proj=utm +zone=11 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")
+```
+
+## 2.1.8 The sf class
+Objects of class sf represent data by combining attributes (data.frame) with a simple feature geometry column (sfc). They are created with st_sf() as illustrated below, which creates a London example of temperature.
+```{r}
+lnd_point = st_point(c(0.1, 51.5))                 # sfg object
+lnd_geom = st_sfc(lnd_point, crs = 4326)           # sfc object
+lnd_attrib = data.frame(                           # data.frame object
+  name = "London",
+  temperature = 25,
+  date = as.Date("2017-06-21")
+  )
+lnd_sf = st_sf(lnd_attrib, geometry = lnd_geom)    # sf object
+lnd_sf
+class(lnd_sf)
+```
+Most of the time a sf can be treated as and behaves like a data.frame. Simple features are, in essence, data frames with a spatial extension.
+
+# 2.2 Raster Data
+The geographic raster data model usually consists of a raster header and a matrix (with rows and columns) representing equally spaced cells (often also called pixels). Each cell in a raster layer can only hold a single value, which can be numeric or categorical.
+
+* **Raster header**
+    + Defines the coordinate reference system, the extent and the origin.
+        - *The origin* (or starting point) is frequently the coordinate of the lower-left corner of the matrix (the raster package, however, uses the upper left corner, by default
+        - *The extent* is defined via the number of columns, the number of rows and the cell size resolution. This allows us to easily access and modify each single cell by either using the ID of a cell or by explicitly specifying the rows and columns 
+        
+## 2.2.1 An introduction to raster
+Using data from spDataLarge covering Zion National Park (Utah). The following is a digital elevation model of the are and we will create a `RasterLayer` object for it.
+```{r}
+raster_filepath = system.file("raster/srtm.tif", package = "spDataLarge")
+new_raster = raster(raster_filepath)
+```
+
+Print raster header (extent, dimensions, resolution, CRS) and additional info too:
+```{r}
+new_raster
+```
+ 
+This raster unprojected, thus hard to interpret resolution. Good resou<rce on understanding the relationship between raster resolution, spatial extent & number of pixels here: <https://www.neonscience.org/raster-res-extent-pixels-r>
+
+## 2.2.2 Basic map making
+
+Similar to the sf package, raster also provides plot() methods for its own classes.
+```{r}
+plot(new_raster)
+```
+
+## 2.2.3 Raster classes
+There are three raster classes:
+
+1.  `RasterLayer` - represents the simplest form of a raster object, and consists of only one layer. The easiest way to create a raster object in R is to read-in a raster file from disk or from a server as done in the code from section [2.2.1 An introduction to raster].
+
+`RasterLayer` rasters can also be created from scratch using the `raster()` function. This is illustrated in the subsequent code chunk, which results in a new `RasterLayer` object. The resulting raster consists of 36 cells (6 columns and 6 rows specified by `nrow` and `ncol`) centered around the Prime Meridian and the Equator (see `xmn`, `xmx`, `ymn` and `ymx` parameters). The CRS is the **default of raster objects: WGS84**. This means the unit of the resolution is in degrees which we set to 0.5 (`res`). Values (`vals`) are assigned to each cell: 1 to cell 1, 2 to cell 2, and so on. **Remember: raster() fills cells row-wise** (unlike matrix()) starting at the upper left corner, meaning the top row contains the values 1 to 6, the second 7 to 12 etc.
+```{r}
+new_raster2 = raster(nrow = 6, ncol = 6, res = 0.5, 
+                     xmn = -1.5, xmx = 1.5, ymn = -1.5, ymx = 1.5,
+                     vals = 1:36)
+new_raster2
+```
+Plot newly created raster
+```{r}
+plot(new_raster2)
+text(new_raster2)
+```
+
+
+2.  `RasterBrick` -  consists of multiple layers, which typically correspond to a single multispectral satellite file or a single multilayer object in memory. The `brick()` function creates a `RasterBrick` object. Usually, you provide it with a filename to a multilayer raster file but might also use another raster object and other spatial objects. Processing time is usually shorter for `RasterBrick` objects compares to `RasterStack` objects
+```{r}
+multi_raster_file = system.file("raster/landsat.tif", package = "spDataLarge")
+r_brick = brick(multi_raster_file)
+r_brick
+```
+```{r}
+#nlayers() retrieves the number of layers stored in a Raster* object:
+nlayers(r_brick)
+```
+
+3.  `RasterStack` - similar to a `RasterBrick` in the sense that it consists also of multiple layers. However, in contrast to `RasterBrick`, `RasterStack` allows you to connect several raster objects stored in different files or multiply objects in memory. More specifically, a `RasterStack` is a list of `RasterLayer` objects with the same extent and resolution. Hence, one way to create it is with the help of spatial objects already existing in R’s global environment. And again, one can simply specify a path to a file stored on disk. `RasterStack` objects usually have a longer processing time compared to `RasterBrick` objects.
+```{r}
+#Creating 1st RasterLayer
+raster_on_disk = raster(r_brick, layer = 1)
+raster_in_memory = raster(xmn = 301905, xmx = 335745,
+                          ymn = 4111245, ymx = 4154085, 
+                          res = 30)
+values(raster_in_memory) = sample(seq_len(ncell(raster_in_memory)))
+crs(raster_in_memory) = crs(raster_on_disk)
+raster_in_memory
+```
+Now create a `RasterStack`
+```{r}
+r_stack = stack(raster_in_memory, raster_on_disk)
+r_stack
+```
+
+# 2.3 Coordinate Reference Systems
+
+
