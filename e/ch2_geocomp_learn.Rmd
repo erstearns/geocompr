@@ -287,7 +287,7 @@ There are three raster classes:
 
 1.  `RasterLayer` - represents the simplest form of a raster object, and consists of only one layer. The easiest way to create a raster object in R is to read-in a raster file from disk or from a server as done in the code from section [2.2.1 An introduction to raster].
 
-`RasterLayer` rasters can also be created from scratch using the `raster()` function. This is illustrated in the subsequent code chunk, which results in a new `RasterLayer` object. The resulting raster consists of 36 cells (6 columns and 6 rows specified by `nrow` and `ncol`) centered around the Prime Meridian and the Equator (see `xmn`, `xmx`, `ymn` and `ymx` parameters). The CRS is the **default of raster objects: WGS84**. This means the unit of the resolution is in degrees which we set to 0.5 (`res`). Values (`vals`) are assigned to each cell: 1 to cell 1, 2 to cell 2, and so on. **Remember: raster() fills cells row-wise** (unlike matrix()) starting at the upper left corner, meaning the top row contains the values 1 to 6, the second 7 to 12 etc.
+`RasterLayer` rasters can also be created from scratch using the `raster()` function. This is illustrated in the subsequent code chunk, which results in a new `RasterLayer` object. The resulting raster consists of 36 cells (6 columns and 6 rows specified by `nrow` and `ncol`) centered around the Prime Meridian and the Equator (see `xmn`, `xmx`, `ymn` and `ymx` parameters). The CRS is the **default of raster objects: WGS84**. This means the unit of the resolution is in degrees which we set to 0.5 (`res`). Values (`vals`) are assigned to each cell: 1 to cell 1, 2 to cell 2, and so on. **Remember: `raster()` fills cells row-wise** (unlike matrix()) starting at the upper left corner, meaning the top row contains the values 1 to 6, the second 7 to 12 etc.
 ```{r}
 new_raster2 = raster(nrow = 6, ncol = 6, res = 0.5, 
                      xmn = -1.5, xmx = 1.5, ymn = -1.5, ymx = 1.5,
@@ -329,6 +329,139 @@ r_stack = stack(raster_in_memory, raster_on_disk)
 r_stack
 ```
 
-# 2.3 Coordinate Reference Systems
+# 2.3 Coordinate Reference Systems (CRSs)
+## 2.3.1 Geographic coordinate systems
+Geographic coordinate systems identify any location on the Earth’s surface using two values — longitude and latitude. Distance in geographic CRSs are therefore not measured in meters.
 
+* **Longitude**
+    + Location in the East-West direction in angular distance from the Prime Meridian plane.
+* **Latitude**
+    + Angular distance North or South of the equatorial plane.
+* **Geographic cordinate system surfaces**
+    + *Spherical model:* simple, but innacurate since Earth not a sphere
+    + *Ellipsoidal model:* defined by 2 parameters:
+        1.  Equatorial radius (~11.5 km longer than polar radius)
+        2.  Polar radius
 
+* **Datum**
+    + Important component of CRS
+    + Pertain to ellipsoidal models of the Earth's surface
+    + Specify which ellipsoid model to use (with the `ellps` parameter in the proj4 CRS library)
+    + Define the precise relationship between Cartesian coordinates and location on Earth's surface (stored in the `towgs84` argument of proj4 notation)
+    + 2 types of datum:
+        1.  *Local:* the ellipsoidal surface is shifted to align with the surface at a particular location (ex. `NAD83` for North America), this allows for local variations in Earth's surface, e.g. mountain ranges
+        2.  *Geocentric:* the ellipsoidal model center is the Earth's center of gravity and accuracy of projections is not optimized for a specific location (ex. `WGS84`)
+    + Available datum definitions can be seen by executing `st_proj_info(type = "datum")`
+    
+## 2.3.2 Projected coordinate systems (Projected CRSs)
+Projected CRSs are based on Cartesian coordinates on an implicitly flat surface. They have an origin, x and y axes, and a linear unit of measurement such as meters. All projected CRSs are based on a geographic CRS, [2.3.1 Geographic coordinate systems], and rely on map projections to convert the three-dimensional surface of the Earth into Easting and Northing (x and y) values in a projected CRS.
+
+* Transition to a projected CRS cannot be done without distortion of some proprties of the Earth's surface. For example:
+    + Area
+    + Direction
+    + Distance
+    + Shape
+* A projected CRS can preserve only 1-2 of those properties. 
+* Projection names often named based on the property they preserve: 
+    + *Equal-area* preserves area
+    + *Azimuthal* preserve direction
+    + *Equidistant* preserve distance
+    + *Conformal* preserve local shape
+* 3 Main groups of projection types:
+    1.  **Conic**
+        + Earth’s surface is projected onto a cone along a single line of tangency or two lines of tangency. 
+        + Distortions are minimized along the tangency lines and rise with the distance from those lines in this projection.
+        + Therefore, it is the best suited for maps of mid-latitude areas.
+    2.  **Cylindrical**
+        + Maps the surface onto a cylinder. 
+        + This projection could also be created by touching the Earth’s surface along a single line of tangency or two lines of tangency. 
+        + Cylindrical projections are used most often when mapping the entire world.
+    3.  **Planar**
+        + Projects data onto a flat surface touching the globe at a point or along a line of tangency. 
+        + Typically used in mapping polar regions.
+* `st_proj_info(type = "proj")` gives a list of the available projections supported by the PROJ library.
+
+## 2.3.3 CRSs in R
+Two main ways to describe a CRS in R:
+
+  1. `epsg` code
+      * Usually shorter than `proj4string` definition, thus easier to remember
+      * Code refers to only one, well-defined coordinate reference system
+      * Cannot be used to define raster CRS
+  2.  `proj4string` definition
+      * Allows for more flexibility than `epsg` code when it comes to specifying different parameters such as the projection type, the datum and the ellipsoid
+      * You can specify many different projectsion, and modify existing ones
+      * The above advantages also make this approach more complicated than using an `epsg` code
+      * Raster objects only accept `proj4` definitions
+* A quick way to find out about available CRS is viar the `rgdal::make_EPSG()` function
+* The following code will show available CRSs interactively, allowing you to filter ones of interest:
+```{r}
+crs_data <- rgdal::make_EPSG()
+View(crs_data)
+```
+
+In `sf` the CRS of an object can be retrieved using `st_crs()`. For this, we need to read-in a vector dataset:
+```{r}
+vector_filepath = system.file("vector/zion.gpkg", package="spDataLarge")
+#Polygon representing the borders of Zion National Park
+new_vector = st_read(vector_filepath)
+```
+
+Now get the CRS of `new_vector`
+```{r}
+st_crs(new_vector)
+```
+
+If CRS is missing or incorrectly set, the `st_set_crs()` function can be used.
+```{r}
+new_vector <- st_set_crs(new_vector, 26912) #set CRS using EPSG code
+```
+
+You may get a warning message that informs us that the st_set_crs() function does not transform data from one CRS to another.
+
+The `projection()` function can be used to access CRS information from a `Raster` object:
+```{r}
+projection(new_raster) #get CRS
+```
+
+The same function, `projection()`, is used to set a CRS for raster objects. The main difference, compared to vector data, is that **raster objects only accept** `proj4` **definitions**:
+```{r}
+projection(new_raster) = "+proj=utm +zone=12 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 
+                            +units=m +no_defs" # set CRS
+```
+
+Further detail on projecting from one CRS to another in chapter 6.
+
+# 2.4 Units
+An important feature of CRSs is that they contain information about spatial units. It is good cartographic practice to add a scale bar onto maps to demonstrate the relationship between distances on the page or screen and distances on the ground. Likewise, it is important to formally specify the units in which the geometry data or pixels are measured to provide context, and ensure that subsequent calculations are done in context.
+
+A novel feature of geometry data in `sf` objects is that they have *native support* for units. This means that distance, area and other geometric calculations in sf return values that come with a units attribute, defined by the `units` package . This is advantageous because it prevents confusion caused by the fact that different CRSs use different units (most use meters, some use feet). Furthermore, it also provides information on dimensionality, as illustrated by the following calculation which reports the area of Luxembourg:
+```{r}
+luxembourg <- world[world$name_long == "Luxembourg",]
+st_area(luxembourg)
+```
+
+The result is in units of square meters (m2), showing that the result represents two-dimensional space. This information, stored as an attribute (discover with `attributes(st_area(luxembourg))`) is advantageous for many reasons, for example it could feed into subsequent calculations such as population density. Reporting units prevents confusion. To take the Luxembourg example, if the units remained unspecified, one could incorrectly assume that the units were in hectares. To translate the huge number into a more digestible size, it is tempting to divide the results by a million (the number of square meters in a square kilometer):
+```{r}
+st_area(luxembourg) / 1000000
+```
+
+However, the result is incorrectly given again as square meters. The solution is to set the correct units with the units package:
+```{r}
+units::set_units(st_area(luxembourg), km^2)
+```
+
+Units are of equal importance in the case of raster data. However, so far `sf` is the only spatial package that supports units, meaning that people working on raster data should approach changes in the units of analysis (for example, converting pixel widths from imperial to decimal units) with care. The `new_raster` object (see above) uses a UTM projection with meters as units. Consequently, its resolution is also given in meters but you have to know it, since the res() function simply returns a numeric vector.
+```{r}
+res(new_raster)
+```
+
+If we used the WGS84 projection, the units would change.
+```{r}
+repr = projectRaster(new_raster, crs = "+init=epsg:4326")
+res(repr)
+```
+
+Again, the res() command gives back a numeric vector without any unit, forcing us to know that the unit of the WGS84 projection is decimal degrees.
+
+# 2.5 Exercises
