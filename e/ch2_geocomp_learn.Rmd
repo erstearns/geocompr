@@ -369,12 +369,12 @@ Projected CRSs are based on Cartesian coordinates on an implicitly flat surface.
     + *Conformal* preserve local shape
 * 3 Main groups of projection types:
     1.  **Conic**
-        + Earth’s surface is projected onto a cone along a single line of tangency or two lines of tangency. 
+        + Earth's surface is projected onto a cone along a single line of tangency or two lines of tangency. 
         + Distortions are minimized along the tangency lines and rise with the distance from those lines in this projection.
         + Therefore, it is the best suited for maps of mid-latitude areas.
     2.  **Cylindrical**
         + Maps the surface onto a cylinder. 
-        + This projection could also be created by touching the Earth’s surface along a single line of tangency or two lines of tangency. 
+        + This projection could also be created by touching the Earth's surface along a single line of tangency or two lines of tangency. 
         + Cylindrical projections are used most often when mapping the entire world.
     3.  **Planar**
         + Projects data onto a flat surface touching the globe at a point or along a line of tangency. 
@@ -465,3 +465,45 @@ res(repr)
 Again, the res() command gives back a numeric vector without any unit, forcing us to know that the unit of the WGS84 projection is decimal degrees.
 
 # 2.5 Exercises
+
+  1.  What does the summary of the geometry column tell us about the world dataset, in terms of:
+    * The geometry type?  -- Multipolygon
+    * How many countries there are? -- 177
+    * The coordinate reference system (CRS)? -- WGS84
+```{r}
+summary(world$geom)
+```
+    
+  2.  Using sf's `plot()` command, create a map of Nigeria in context, building on the code that creates and plots Asia above (see section [2.1.3 basic map making]).
+Hint: this used the lwd, main and col arguments of plot().
+Bonus: make the country boundaries a dotted gray line.
+Hint: border is an additional argument of plot() for sf objects.
+```{r}
+#create nigeria layer
+nga <- world[world$name_long=='Nigeria',]
+#create basemap of world
+plot(world['pop'],reset=FALSE)
+#add nigeria
+plot(nga, add=TRUE, col='red',lty=3,border="gray")
+```
+  3.  What does the cex argument do in the plot() function that generates Figure 2.5? -- It determines the symbol size by making it a function of a country's population.
+    * Why was cex set to the sqrt(world$pop) / 10000 instead of just the population directly? To standardize populations, otherwise scale would be too varied to be interpretable/easily visualized.
+    * Bonus: what equivalent arguments to cex exist in the dedicated visualization package tmap? Dependent on function, but if using `qtm()`, then `bubble.size` would be one example.
+    
+  4.  Already done. Main difference is the use of the graticule arg.
+  5.  Read the raster/nlcd2011.tif file from the spDataLarge package. What kind of information can you get about the properties of this file? -- Class, dimensions, resolution, extent, CRS & projection
+```{r}
+raster_filepath = system.file("raster/nlcd2011.tif", package = "spDataLarge")
+new_raster5 = raster(raster_filepath)
+new_raster5
+```
+
+  6.  Create an empty RasterLayer object called my_raster with 10 columns and 10 rows and resolution of 10 units. Assign random values between 0 and 10 to the new raster and plot it.
+```{r}
+#not working for some reason
+my_raster2 <- raster(nrow = 10, ncol = 10, res = 0.5,
+                     xmn=-1.5,xmx=1.5,ymn=-1.5,ymx=1.5,
+                     vals=sample(0:10,100,replace = T))
+
+```
+  
