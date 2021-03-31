@@ -198,17 +198,18 @@ Many thanks to an anonymous reviewer whose comments formed the basis of this adv
 \index{projection!Lambert conformal conic}
 \index{projection!Stereographic}
 \index{projection!Universal Transverse Mercator}
-- A Lambert azimuthal equal-area ([LAEA](https://en.wikipedia.org/wiki/Lambert_azimuthal_equal-area_projection)) projection for a custom local projection (set `lon_0` and `lat_0` to the center of the study area), which is an equal-area projection at all locations but distorts shapes beyond thousands of kilometres.
--  Azimuthal equidistant ([AEQD](https://en.wikipedia.org/wiki/Azimuthal_equidistant_projection)) projections for a specifically accurate straight-line distance between a point and the centre point of the local projection.
-- Lambert conformal conic ([LCC](https://en.wikipedia.org/wiki/Lambert_conformal_conic_projection)) projections for regions covering thousands of kilometres, with the cone set to keep distance and area properties reasonable between the secant lines.
-- Stereographic ([STERE](https://en.wikipedia.org/wiki/Stereographic_projection)) projections for polar regions, but taking care not to rely on area and distance calculations thousands of kilometres from the center.
+
+- A Lambert azimuthal equal-area ([LAEA](https://en.wikipedia.org/wiki/Lambert_azimuthal_equal-area_projection)) projection for a custom local projection (set `lon_0` and `lat_0` to the center of the study area), which is an equal-area projection at all locations but distorts shapes beyond thousands of kilometres
+-  Azimuthal equidistant ([AEQD](https://en.wikipedia.org/wiki/Azimuthal_equidistant_projection)) projections for a specifically accurate straight-line distance between a point and the centre point of the local projection
+- Lambert conformal conic ([LCC](https://en.wikipedia.org/wiki/Lambert_conformal_conic_projection)) projections for regions covering thousands of kilometres, with the cone set to keep distance and area properties reasonable between the secant lines
+- Stereographic ([STERE](https://en.wikipedia.org/wiki/Stereographic_projection)) projections for polar regions, but taking care not to rely on area and distance calculations thousands of kilometres from the center
 
 A commonly used default is Universal Transverse Mercator ([UTM](https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system)), a set of CRSs that divides the Earth into 60 longitudinal wedges and 20 latitudinal segments.
 The transverse Mercator projection used by UTM CRSs is conformal but distorts areas and distances with increasing severity with distance from the center of the UTM zone.
 Documentation from the GIS software Manifold therefore suggests restricting the longitudinal extent of projects using UTM zones to 6 degrees from the central meridian (source: [manifold.net](http://www.manifold.net/doc/mfd9/universal_transverse_mercator_projection.htm)).
 
 Almost every place on Earth has a UTM code, such as "60H" which refers to northern New Zealand where R was invented.
-All UTM projections have the same datum (WGS84) and their EPSG codes run sequentially from 32601 to 32660 for northern hemisphere locations and from 32701 to 32760 for southern hemisphere locations.
+UTM EPSG codes run sequentially from 32601 to 32660 for northern hemisphere locations and from 32701 to 32760 for southern hemisphere locations.
 
 ```{r 06-reproj-12, eval=FALSE, echo=FALSE}
 utm_nums_n = 32601:32660
@@ -395,12 +396,17 @@ world_laea1 = st_transform(world,
 <!-- plot(world_laea1$geom) -->
 <!-- plot(world_laea1$geom, graticule = TRUE) -->
 
-```{r laeaproj1, echo=FALSE, fig.cap="Lambert azimuthal equal-area projection of the world centered on longitude and latitude of 0.", fig.scap="Lambert azimuthal equal-area projection of the world", warning=FALSE}
+```{r laeaproj1, echo=FALSE, fig.cap="Lambert azimuthal equal-area projection centered on longitude and latitude of 0.", fig.scap="Lambert azimuthal equal-area projection of the world", warning=FALSE}
 world_laea1_g = st_graticule(ndiscr = 10000) %>%
   st_transform("+proj=laea +x_0=0 +y_0=0 +lon_0=0 +lat_0=0") %>% 
   st_geometry()
+valid_geometries = st_is_valid(world_laea1) # some geometries not valid
+# world_laea1_valid = lwgeom::st_make_valid(world_laea1) # doesn't solve it
+# world_laea1_subset = world_laea1[valid_geometries, ] # solves it but removes countries
+world_laea1_lines = st_cast(world_laea1, "MULTILINESTRING")
 tm_shape(world_laea1_g) + tm_lines(col = "gray") +
-  tm_shape(world_laea1) + tm_borders(col = "black")
+  # tm_shape(world_laea1) + tm_borders(col = "black")
+  tm_shape(world_laea1_lines) + tm_lines(col = "black")
 ```
 
 We can change the PROJ parameters, for example the center of the projection, using the `+lon_0` and `+lat_0` parameters. 
@@ -414,18 +420,20 @@ world_laea2 = st_transform(world,
 <!-- plot(world_laea2$geom, graticule = TRUE) -->
 
 ```{r laeaproj2, echo=FALSE, fig.cap="Lambert azimuthal equal-area projection of the world centered on New York City.", fig.scap="Lambert azimuthal equal-area projection centered on New York City.", warning=FALSE}
+# Currently fails, see https://github.com/Robinlovelace/geocompr/issues/460
 world_laea2_g = st_graticule(ndiscr = 10000) %>%
-  st_transform("+proj=laea +x_0=0 +y_0=0 +lon_0=-74 +lat_0=40.1 +ellps=WGS84 +no_defs") %>% 
+  st_transform("+proj=laea +x_0=0 +y_0=0 +lon_0=-74 +lat_0=40.1 +ellps=WGS84 +no_defs") %>%
   st_geometry()
 tm_shape(world_laea2_g) + tm_lines(col = "gray") +
   tm_shape(world_laea2) + tm_borders(col = "black")
+# knitr::include_graphics("https://user-images.githubusercontent.com/1825120/72223267-c79a4780-3564-11ea-9d7e-9644523e349b.png")
 ```
 
 More information on CRS modifications can be found in the [Using PROJ](https://proj.org/usage/index.html) documentation.
 
 <!-- https://github.com/r-spatial/lwgeom/issues/6 -->
 <!-- ```{r} -->
-<!-- # devtools::install_github("r-spatial/lwgeom") -->
+<!-- # remotes::install_github("r-spatial/lwgeom") -->
 <!-- library(lwgeom) -->
 <!-- world_3 = lwgeom::st_transform_proj(world, crs = "+proj=wintri") -->
 <!-- plot(world_3$geom) -->
@@ -609,7 +617,7 @@ plot(st_geometry(world_tmerc))
 world_4326 = st_transform(world_tmerc, 4326)
 plot(st_geometry(world_4326))
 ```
-1. Transform the continuous raster (`cat_raster`) into WGS 84 using the nearest neighbor interpolation method. 
+1. Transform the continuous raster (`con_raster`) into NAD83 / UTM zone 12N using the nearest neighbor interpolation method.
 What has changed?
 How does it influence the results?
 ```{r 06-reproj-38, echo=FALSE, eval=FALSE}

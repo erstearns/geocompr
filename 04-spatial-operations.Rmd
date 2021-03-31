@@ -30,7 +30,7 @@ These are covered in Section \@ref(topological-relations), on topological relati
 
 \index{spatial operations}
 Another unique aspect of spatial objects is distance.
-All spatial objects are related through space and distance calculations, covered in Section \@ref(distance-relations), can be used to explore the strength of this relationship.
+All spatial objects are related through space, and distance calculations can be used to explore the strength of this relationship. These are covered in Section \@ref(distance-relations).
 
 Spatial operations also apply to raster objects.
 Spatial subsetting of raster objects is covered in Section \@ref(spatial-raster-subsetting); merging several raster 'tiles' into a single object is covered in Section \@ref(merging-rasters).
@@ -126,7 +126,7 @@ canterbury_height3 = nz_height %>%
 ```
 
 At this point, there are three versions of `canterbury_height`, one created with spatial subsetting directly and the other two via intermediary selection objects.
-To explore these objects and spatial subsetting in more detail, see the supplementary vignettes on `subsetting` and [`tidverse-pitfalls`](https://geocompr.github.io/geocompkg/articles/).
+To explore these objects and spatial subsetting in more detail, see the supplementary vignettes on `subsetting` and [`tidyverse-pitfalls`](https://geocompr.github.io/geocompkg/articles/).
 
 ### Topological relations
 
@@ -439,7 +439,7 @@ if (knitr::is_latex_output()){
     # tm_scale_bar()
   library(leaflet)
   leaflet() %>%
-    addProviderTiles(providers$OpenStreetMap.BlackAndWhite) %>%
+    # addProviderTiles(providers$OpenStreetMap.BlackAndWhite) %>%
     addCircles(data = cycle_hire) %>%
     addCircles(data = cycle_hire_osm, col = "red")  
 }
@@ -591,8 +591,8 @@ st_distance(nz_heighest, canterbury_centroid)
 
 There are two potentially surprising things about the result:
 
-- It has `units`, telling us the distance is 100,000 meters, not 100,000 inches, or any other measure of distance.
-- It is returned as a matrix, even though the result only contains a single value.
+- It has `units`, telling us the distance is 100,000 meters, not 100,000 inches, or any other measure of distance
+- It is returned as a matrix, even though the result only contains a single value
 
 This second feature hints at another useful feature of `st_distance()`, its ability to return *distance matrices* between all combinations of features in objects `x` and `y`.
 This is illustrated in the command below, which finds the distances between the first three features in `nz_height` and the Otago and Canterbury regions of New Zealand represented by the object `co`.
@@ -754,7 +754,7 @@ We will perform several reclassifactions in Chapter \@ref(location).
 Raster algebra is another classical use case of local operations.
 This includes adding, subtracting and squaring two rasters.
 Raster algebra also allows logical operations such as finding all raster cells that are greater than a specific value (5 in our example below).
-The **raster** package supports all these operations and more, as described in `vignette("Raster")` and demonstrated below (results not show):
+The **raster** package supports all these operations and more, as described in `vignette("Raster")` and demonstrated below (results not shown):
 
 ```{r 04-spatial-operations-41, eval = FALSE}
 elev + elev
@@ -814,7 +814,7 @@ Low-pass or smoothing filters use the mean function to remove extremes.
 In the case of categorical data, we can replace the mean with the mode, which is the most common value.
 By contrast, high-pass filters accentuate features.
 The line detection Laplace and Sobel filters might serve as an example here.
-Check the `focal()` help page for how to use them in R (this will also be used in the excercises at the end of this chapter).
+Check the `focal()` help page for how to use them in R (this will also be used in the exercises at the end of this chapter).
 
 Terrain processing, the calculation of topographic characteristics such as slope, aspect and flow directions, relies on focal functions.
 `terrain()` can be used to calculate these metrics, although some terrain algorithms, including the Zevenbergen and Thorne method to compute slope, are not implemented in this **raster** function.
@@ -970,8 +970,8 @@ nz_height_combined %>%
   arrange(desc(count)) %>% 
   na.omit()
 ```
-1. Use `data(dem, package = "RQGIS")`, and reclassify the elevation in three classes: low, medium and high.
-Secondly, attach the NDVI raster (`data(ndvi, package = "RQGIS")`) and compute the mean NDVI and the mean elevation for each altitudinal class.
+1. Use `data(dem, package = "spDataLarge")`, and reclassify the elevation in three classes: low, medium and high.
+Secondly, attach the NDVI raster (`data(ndvi, package = "spDataLarge")`) and compute the mean NDVI and the mean elevation for each altitudinal class.
 1. Apply a line detection filter to `raster(system.file("external/rlogo.grd", package = "raster"))`.
 Plot the result.
 Hint: Read `?raster::focal()`.

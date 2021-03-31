@@ -142,7 +142,7 @@ world3 = st_read(system.file("shapes/world.gpkg", package = "spData"))
 
 \index{geographic web services}
 In an effort to standardize web APIs for accessing spatial data, the Open Geospatial Consortium (OGC) has created a number of specifications for web services (collectively known as OWS, which is short for OGC Web Services).
-These specifications include the Web Feature Service (WFS)\index{geographic web services!WFS}, Web Map Service (WMS)\index{geographic web services!WMS}, Web Map Tile Service (WMTS)\index{geographic web services!WMTS}, the Web Coverage Service (WCS)\index{geographic web services!WCS} and even a Wep Processing Service (WPS)\index{geographic web services!WPS}.
+These specifications include the Web Feature Service (WFS)\index{geographic web services!WFS}, Web Map Service (WMS)\index{geographic web services!WMS}, Web Map Tile Service (WMTS)\index{geographic web services!WMTS}, the Web Coverage Service (WCS)\index{geographic web services!WCS} and even a Web Processing Service (WPS)\index{geographic web services!WPS}.
 Map servers such as PostGIS have adopted these protocols, leading to standardization of queries.
 Like other web APIs, OWS APIs use a 'base URL', an 'endpoint' and 'URL query arguments' following a `?` to request data (see the [`best-practices-api-packages`](https://httr.r-lib.org/articles/api-packages.html) vignette in the **httr** package).
 
@@ -199,7 +199,7 @@ One can extract them programmatically using web technologies [@nolan_xml_2014] o
 ```{r 07-read-write-plot-12, eval=FALSE}
 qf = list(request = "GetFeature", typeName = "area:FAO_AREAS")
 file = tempfile(fileext = ".gml")
-httr::GET(url = base_url, query = qf, httr::write_disk(file))
+httr::GET(url = base_url, path = endpoint, query = qf, httr::write_disk(file))
 fao_areas = sf::read_sf(file)
 ```
 
@@ -512,35 +512,26 @@ st_write(obj = world, dsn = "world.gpkg")
 
 **Note**: if you try to write to the same data source again, the function will fail:
 
-```{r 07-read-write-plot-29, eval=FALSE}
+```{r 07-read-write-plot-29, error=TRUE}
 st_write(obj = world, dsn = "world.gpkg")
-#> Updating layer `world' to data source `world.gpkg' using driver `GPKG'
-#> Creating layer world failed.
-#> Error in CPL_write_ogr(obj, dsn, layer, driver, ...),  : 
-#>   Layer creation failed.
-#> In addition: Warning message:
-#> In CPL_write_ogr(obj, dsn, layer, driver, ...),  :
-#>   GDAL Error 1: Layer world already exists, CreateLayer failed.
-#> Use the layer creation option OVERWRITE=YES to replace it.
 ```
 
-The error message provides some information as to why the function failed.
-The `GDAL Error 1` statement makes clear that the failure occurred at the GDAL\index{GDAL} level.
-Additionally, the suggestion to use `OVERWRITE=YES` provides a clue about how to fix the problem.
-However, this is not a `st_write()` argument, it is a GDAL\index{GDAL} option.
-Luckily, `st_write` provides a `layer_options` argument through which we can pass driver-dependent options:
-
-```{r 07-read-write-plot-30, results='hide'}
-st_write(obj = world, dsn = "world.gpkg", layer_options = "OVERWRITE=YES")
-```
-
-Another solution is to use the `st_write()` argument `delete_layer`. Setting it to `TRUE` deletes already existing layers in the data source before the function attempts to write (note there is also a `delete_dsn` argument):
+The error message tells us why the function failed:
+`world.gpkg` already contains a layer called `world`. 
+To fix this problem, use the `append` argument.
+When this argument is set to `TRUE`, the old layer is kept and the `world` object is added as a second new layer:
 
 ```{r 07-read-write-plot-31, results='hide'}
-st_write(obj = world, dsn = "world.gpkg", delete_layer = TRUE)
+st_write(obj = world, dsn = "world.gpkg", append = TRUE)
 ```
 
-You can achieve the same with `write_sf()` since it is equivalent to (technically an *alias* for) `st_write()`, except that its defaults for `delete_layer` and `quiet` is `TRUE`.
+Alternatively with `append = FALSE`, existing layers are deleted before the function attempts to write our object to a file:
+
+```{r 07-read-write-plot-30, results='hide'}
+st_write(obj = world, dsn = "world.gpkg", append = FALSE)
+```
+
+You can achieve the same with `write_sf()` since it is equivalent to (technically an *alias* for) `st_write()`, except that its defaults for `append` is `FALSE` and `quiet` is `TRUE`.
 
 ```{r 07-read-write-plot-32}
 write_sf(obj = world, dsn = "world.gpkg")

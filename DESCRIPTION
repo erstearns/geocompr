@@ -9,7 +9,7 @@ Authors@R: c(person("Robin", "Lovelace", role = c("aut")),
 Description: Open source book on R for reproducible,
     geographic research
 License: CC BY-NC-ND 4.0
-Depends: 
+Imports: 
     bookdown,
     sf,
     tmap,
@@ -17,8 +17,6 @@ Depends:
     geocompkg
 Remotes: 
     geocompr/geocompkg,
-    mtennekes/tmap,
-    nowosad/spDataLarge,
-    r-spatial/sf
+    nowosad/spDataLarge
 Encoding: UTF-8
 LazyData: true

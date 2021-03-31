@@ -10,7 +10,7 @@ We assume that you have an up-to-date version of R installed and that you are co
 If you are new to R, we recommend reading Chapter 2 of the online book *Efficient R Programming* by @gillespie_efficient_2016 and
 <!-- , particularly sections 2.3 and 2.5, for details on R installation and set-up. -->
 <!-- [set-up](https://csgillespie.github.io/efficientR/set-up.html). -->
-learning the basics of the language with reference to resources such as @grolemund_r_2016 or [DataCamp](https://www.datacamp.com/courses/free-introduction-to-r) before proceeding.
+learning the basics of the language with reference to resources such as @grolemund_r_2016.
 Organize your work (e.g., with RStudio projects) and give scripts sensible names such as `chapter-02.R` to document the code you write as you learn.
 <!-- '[project](https://csgillespie.github.io/efficientR/set-up.html#project-management)' called `geocomp-learning`. -->
 <!--     Creating new script for each chapter or section of interest will help consolidate and extend the skills learned. -->
@@ -21,7 +21,7 @@ Organize your work (e.g., with RStudio projects) and give scripts sensible names
 \index{R!pre-requisites}
 
 The packages used in this chapter can be installed with the following commands:^[
-**spDataLarge** is not on CRAN\index{CRAN}, meaning it must be installed via **devtools** or with the following command: `install.packages("spDataLarge", repos = "https://nowosad.github.io/drat/", type = "source")`.
+**spDataLarge** is not on CRAN\index{CRAN}, meaning it must be installed via **remotes** or with the following command: `install.packages("spDataLarge", repos = "https://nowosad.github.io/drat/", type = "source")`.
 <!-- In case the installation fails, for example if you do not have rights to install non CRAN packages on your organisation's computers, the data in **spDataLarge** can be loaded by running the script [`spData.R`](https://github.com/Robinlovelace/geocompr/blob/master/code/spData.R) from the `code` folder in the book's GitHub repo at [github.com/Robinlovelace/geocompr](https://github.com/Robinlovelace/geocompr). -->
 ]
 
@@ -29,7 +29,7 @@ The packages used in this chapter can be installed with the following commands:^
 install.packages("sf")
 install.packages("raster")
 install.packages("spData")
-devtools::install_github("Nowosad/spDataLarge")
+remotes::install_github("Nowosad/spDataLarge")
 ```
 
 \index{R!installation}
@@ -39,14 +39,19 @@ These operating systems (OSs) have 'systems requirements' that are described in 
 Various OS-specific instructions can be found online, such as the article *Installation of R 3.5 on Ubuntu 18.04* on the blog [rtask.thinkr.fr](https://rtask.thinkr.fr/blog/installation-of-r-3-5-on-ubuntu-18-04-lts-and-tips-for-spatial-packages/).
 ```
 
-All the packages needed to reproduce the contents of the book can be installed with the following command: `devtools::install_github("geocompr/geocompkg")`.
+All the packages needed to reproduce the contents of the book can be installed with the following command: `remotes::install_github("geocompr/geocompkg")`.
 The necessary packages can be 'loaded' (technically they are attached) with the `library()` function as follows:
 
-```{r 02-spatial-data-3, message=FALSE}
+```{r 02-spatial-data-3-1, message=TRUE}
 library(sf)          # classes and functions for vector data
+```
+
+
+```{r 02-spatial-data-3-2, message=FALSE}
 library(raster)      # classes and functions for raster data
 ```
 
+The output from `library(sf)` reports which versions of key geographic libraries such as GEOS the package is using, as outlined in Section \@ref(intro-sf).
 The other packages that were installed contain data that will be used in the book:
 
 ```{r 02-spatial-data-4, results='hide'}
@@ -68,8 +73,8 @@ Rasters aggregate spatially specific features to a given resolution, meaning tha
 Which to use?
 The answer likely depends on your domain of application:
 
-- Vector data tends to dominate the social sciences because human settlements tend to have discrete borders.
-- Raster often dominates in environmental sciences because of the reliance on remote sensing data. 
+- Vector data tends to dominate the social sciences because human settlements tend to have discrete borders
+- Raster dominates many environmental sciences because of the reliance on remote sensing data
 
 There is much overlap in some fields and raster and vector datasets can be used together:
 ecologists and demographers, for example, commonly use both vector and raster data.
@@ -157,8 +162,10 @@ knitr::include_graphics("figures/sf-classes.png")
 \index{sf}
 \index{sf (package)|see {sf}}
 **sf** also supports geometry collections, which can contain multiple geometry types in a single object.
-**sf** largely supersedes the **sp** ecosystem, which comprises **sp** [@R-sp], **rgdal** for data read/write [@R-rgdal] and **rgeos** for spatial operations [@R-rgeos].
-The package is well documented, as can be seen on its website and in 6 vignettes, which can be loaded as follows:
+**sf** provides the same functionality (and more) previously provided in three packages --- **sp** for data classes [@R-sp], **rgdal** for data read/write via an interface to GDAL and PROJ [@R-rgdal] and **rgeos** for spatial operations via an interface to GEOS [@R-rgeos].
+To re-iterate the message from Chapter 1, geographic R packages have a long history of interfacing with lower level libraries, and **sf** continues this tradition with a unified interface to recent versions of the GEOS library for geometry operations, the GDAL library for reading and writing geographic data files, and the PROJ library for representing and transforming projected coordinate reference systems.
+This is a notable achievement that reduces the headspace needed for 'context switching between' different packages and enables access to high-performance geographic libraries.
+Documenation on **sf** can be found on its website and in 6 vignettes, which can be loaded as follows:
 
 ```{r 02-spatial-data-6, eval=FALSE}
 vignette(package = "sf") # see which vignettes are available
@@ -257,13 +264,13 @@ A major advantage of this is that using the data model ensures your work is cros
 \index{sf!why simple features}
 
 A more specific question from an R perspective is "why use the **sf** package when **sp** is already tried and tested"?
-There are many reasons (linked to the advantages of the simple features model) including:
+There are many reasons (linked to the advantages of the simple features model):
 
-- Fast reading and writing of data.
-- Enhanced plotting performance.
-- **sf** objects can be treated as data frames in most operations.
+- Fast reading and writing of data
+- Enhanced plotting performance
+- **sf** objects can be treated as data frames in most operations
 - **sf** functions can be combined using `%>%` operator and works well with the [tidyverse](http://tidyverse.org/) collection of R packages\index{tidyverse}.
-- **sf** function names are relatively consistent and intuitive (all begin with `st_`).
+- **sf** function names are relatively consistent and intuitive (all begin with `st_`)
 
 Due to such advantages, some spatial packages (including **tmap**, **mapview** and **tidycensus**) have added support for **sf**.
 However, it will take many years for most packages to transition and some will never switch.
@@ -333,7 +340,7 @@ plot(world$geom, main = "sf plot() method")
 ```
 
 Figure \@ref(fig:contpop) illustrates this flexibility by overlaying circles, whose diameters (set with `cex =`) represent country populations, on a map of the world.
-A basic version of the map can be created with the following commands (see exercises at the end of this chapter and the script [`02-contplot.R`](https://github.com/Robinlovelace/geocompr/blob/master/code/02-contpop.R) to create Figure \@ref(fig:contpop)):
+An unprojected version of this figure can be created with the following commands (see exercises at the end of this chapter and the script [`02-contplot.R`](https://github.com/Robinlovelace/geocompr/blob/master/code/02-contpop.R) to reproduce Figure \@ref(fig:contpop)):
 
 ```{r 02-spatial-data-16, eval=FALSE}
 plot(world["continent"], reset = FALSE)
@@ -435,6 +442,7 @@ However, **sf** also allows multiple geometries to exist within a single feature
 - Multipoint: `MULTIPOINT (5 2, 1 3, 3 4, 3 2)`
 - Multilinestring: `MULTILINESTRING ((1 5, 4 4, 4 1, 2 2, 3 2), (1 2, 2 4))`
 - Multipolygon: `MULTIPOLYGON (((1 5, 2 2, 4 1, 4 4, 1 5), (0 2, 1 2, 1 3, 0 3, 0 2)))`
+
 
 ```{r multis, echo=FALSE, fig.cap="Illustration of multi* geometries."}
 old_par = par(mfrow = c(1, 3), pty = "s", mar = c(0, 3, 1, 0))
@@ -686,7 +694,7 @@ lnd_sf = st_sf(lnd_attrib, geometry = lnd_geom)    # sf object
 What just happened? First, the coordinates were used to create the simple feature geometry (`sfg`).
 Second, the geometry was converted into a simple feature geometry column (`sfc`), with a CRS.
 Third, attributes were stored in a `data.frame`, which was combined with the `sfc` object with `st_sf()`.
-This results in an `sf` object, as demonstrated below (some output is ommited):
+This results in an `sf` object, as demonstrated below (some output is omitted):
 
 ```{r 02-spatial-data-34, eval=FALSE}
 lnd_sf
@@ -751,7 +759,9 @@ Of course, we can represent discrete features such as soil or land-cover classes
 Consequently, the discrete borders of these features become blurred, and depending on the spatial task a vector representation might be more suitable.
 
 ```{r raster-intro-plot2, echo=FALSE, fig.cap="Examples of continuous and categorical rasters.", warning=FALSE}
-source("https://github.com/Robinlovelace/geocompr/raw/master/code/02_raster_intro_plot2.R", print.eval = TRUE)
+# Failing, see here: https://github.com/Robinlovelace/geocompr/issues/564
+# source("code/02_raster_intro_plot2.R", print.eval = TRUE)
+knitr::include_graphics("https://user-images.githubusercontent.com/1825120/88452351-e3f13800-ce55-11ea-9d6f-540e15809513.png")
 ```
 
 ### An introduction to raster
@@ -846,8 +856,8 @@ plot(new_raster)
 
 There are several other approaches for plotting raster data in R that are outside the scope of this section, including:
 
-- Functions such as `spplot()` and `levelplot()` (from the **sp** and **rasterVis** packages, respectively) to create facets, a common technique for visualizing change over time.
-- Packages such as **tmap**, **mapview** and **leaflet** to create interactive maps of raster and vector objects (see Chapter \@ref(adv-map)). 
+- functions such as `spplot()` and `levelplot()` (from the **sp** and **rasterVis** packages, respectively) to create facets, a common technique for visualizing change over time; and
+- packages such as **tmap**, **mapview** and **leaflet** to create interactive maps of raster and vector objects (see Chapter \@ref(adv-map)). 
 
 ### Raster classes {#raster-classes}
 
@@ -988,10 +998,10 @@ Spherical models assume that the Earth is a perfect sphere of a given radius.
 Spherical models have the advantage of simplicity but are rarely used because they are inaccurate: the Earth is not a sphere!
 Ellipsoidal models are defined by two parameters: the equatorial radius and the polar radius.
 These are suitable because the Earth is compressed: the equatorial radius is around 11.5 km longer than the polar radius [@maling_coordinate_1992].^[
-The degree of compression is often referred to as *flattening*, defined in terms of the equatorial radius ($a$) and polar radius ($b$) as follows: $f = (a - b) / a$. The terms *ellipticity* and *compression* can also be used [@maling_coordinate_1992].
+The degree of compression is often referred to as *flattening*, defined in terms of the equatorial radius ($a$) and polar radius ($b$) as follows: $f = (a - b) / a$. The terms *ellipticity* and *compression* can also be used.
 <!-- The degree of compression is often referred to as [*flattening*](https://en.wikipedia.org/wiki/Flattening), defined in terms of the equatorial radius ($a$) and polar radius ($b$) as follows: $f = (a - b) / a$. The terms *ellipticity* and *compression* can also be used [@maling_coordinate_1992]. -->
 Because $f$ is a rather small value, digital ellipsoid models use the 'inverse flattening' ($rf = 1/f$) to define the Earth's compression.
-Values of $a$ and $rf$ in various ellipsoidal models can be seen by executing `st_proj_info(type = "ellps")`.
+Values of $a$ and $rf$ in various ellipsoidal models can be seen by executing `sf_proj_info(type = "ellps")`.
 ]
 
 Ellipsoids are part of a wider component of CRSs: the *datum*.
@@ -1001,7 +1011,7 @@ These allow local variations in Earth's surface, for example due to large mounta
 There are two types of datum --- local and geocentric.
 In a *local datum* such as `NAD83` the ellipsoidal surface is shifted to align with the surface at a particular location.
 In a *geocentric datum*  such as `WGS84` the center is the Earth's center of gravity and the accuracy of projections is not optimized for a specific location.
-Available datum definitions can be seen by executing `st_proj_info(type = "datum")`.
+<!-- Available datum definitions can be seen by executing `sf_proj_info(type = "datum")`. -->
 <!-- plots? -->
 <!-- plus maybe table (few examples) -->
 
@@ -1101,7 +1111,8 @@ The same function, `projection()`, is used to set a CRS for raster objects.
 The main difference, compared to vector data, is that raster objects only accept `proj4` definitions:
 
 ```{r 02-spatial-data-56}
-projection(new_raster) = "+proj=utm +zone=12 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 
+new_raster3 = new_raster
+projection(new_raster3) = "+proj=utm +zone=12 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 
                             +units=m +no_defs" # set CRS
 ```
 
@@ -1135,7 +1146,7 @@ luxembourg = world[world$name_long == "Luxembourg", ]
 ```
 
 ```{r 02-spatial-data-58}
-st_area(luxembourg)
+st_area(luxembourg) # requires the s2 package in recent versions of sf
 ```
 
 The output is in units of square meters (m^2^), showing that the result represents two-dimensional space.
@@ -1168,7 +1179,7 @@ res(new_raster)
 If we used the UTM projection, the units would change.
 
 ```{r 02-spatial-data-62, warning=FALSE, message=FALSE}
-repr = projectRaster(new_raster, crs = "+init=epsg:26912")
+repr = projectRaster(new_raster, crs = 26912)
 res(repr)
 ```
 

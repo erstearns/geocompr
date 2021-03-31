@@ -3,14 +3,17 @@
 
 # Geocomputation with R
 
+<!-- badges: start -->
 [![Launch Rstudio
 Binder](http://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/robinlovelace/geocompr/master?urlpath=rstudio)
-[![Build
-Status](https://travis-ci.org/Robinlovelace/geocompr.svg?branch=master)](https://travis-ci.org/Robinlovelace/geocompr)
+[![Launch Rstudio
+Cloud](images/cloud.png)](https://rstudio.cloud/project/1642300)
+[![Actions](https://github.com/Robinlovelace/geocompr/workflows/Render-Book-from-master/badge.svg)](https://github.com/Robinlovelace/geocompr/actions)
 [![Docker](https://img.shields.io/docker/automated/robinlovelace/geocompr.svg)](https://hub.docker.com/r/robinlovelace/geocompr/builds/)
 [![DOI](https://zenodo.org/badge/84222786.svg)](https://zenodo.org/badge/latestdoi/84222786)
+<!-- badges: end -->
 
-# Introduction
+## Introduction
 
 This repository hosts the code underlying Geocomputation with R, a book
 by [Robin Lovelace](https://www.robinlovelace.net/), [Jakub
@@ -30,14 +33,14 @@ The online version of this book is free to read at
 
 We encourage contributions on any part of the book, including:
 
-  - Improvements to the text, e.g. clarifying unclear sentences, fixing
+-   improvements to the text, e.g. clarifying unclear sentences, fixing
     typos (see guidance from [Yihui
-    Xie](https://yihui.name/en/2013/06/fix-typo-in-documentation/)).
-  - Changes to the code, e.g. to do things in a more efficient way.
-  - Suggestions on content (see the project’s [issue
+    Xie](https://yihui.name/en/2013/06/fix-typo-in-documentation/));
+-   changes to the code, e.g. to do things in a more efficient way; and
+-   suggestions on content (see the project’s [issue
     tracker](https://github.com/Robinlovelace/geocompr/issues)).
 
-Please see
+See
 [our-style.md](https://github.com/Robinlovelace/geocompr/blob/master/our-style.md)
 for the book’s style.
 
@@ -45,28 +48,47 @@ Many thanks to all contributors to the book so far via GitHub (this list
 will update automatically): [prosoitos](https://github.com/prosoitos),
 [florisvdh](https://github.com/florisvdh),
 [katygregg](https://github.com/katygregg),
-[erstearns](https://github.com/erstearns),
-[eyesofbambi](https://github.com/eyesofbambi),
-[tyluRp](https://github.com/tyluRp),
-[marcosci](https://github.com/marcosci),
-[giocomai](https://github.com/giocomai),
-[mdsumner](https://github.com/mdsumner),
 [rsbivand](https://github.com/rsbivand),
+[KiranmayiV](https://github.com/KiranmayiV),
+[erstearns](https://github.com/erstearns),
+[zmbc](https://github.com/zmbc),
+[eyesofbambi](https://github.com/eyesofbambi),
+[nickbearman](https://github.com/nickbearman),
+[tyluRp](https://github.com/tyluRp),
+[giocomai](https://github.com/giocomai),
+[LaurieLBaker](https://github.com/LaurieLBaker),
+[mdsumner](https://github.com/mdsumner),
 [pat-s](https://github.com/pat-s), [gisma](https://github.com/gisma),
 [ateucher](https://github.com/ateucher),
 [annakrystalli](https://github.com/annakrystalli),
+[DarrellCarvalho](https://github.com/DarrellCarvalho),
 [kant](https://github.com/kant),
 [gavinsimpson](https://github.com/gavinsimpson),
 [Henrik-P](https://github.com/Henrik-P),
 [Himanshuteli](https://github.com/Himanshuteli),
 [yutannihilation](https://github.com/yutannihilation),
 [jbixon13](https://github.com/jbixon13),
+[yvkschaefer](https://github.com/yvkschaefer),
 [katiejolly](https://github.com/katiejolly),
-[layik](https://github.com/layik), [mvl22](https://github.com/mvl22),
-[nickbearman](https://github.com/nickbearman),
+[KHwong12](https://github.com/KHwong12),
+[layik](https://github.com/layik),
+[mtennekes](https://github.com/mtennekes),
+[mvl22](https://github.com/mvl22),
 [ganes1410](https://github.com/ganes1410),
 [richfitz](https://github.com/richfitz),
-[SymbolixAU](https://github.com/SymbolixAU).
+[SymbolixAU](https://github.com/SymbolixAU),
+[wdearden](https://github.com/wdearden),
+[yihui](https://github.com/yihui),
+[chihinl](https://github.com/chihinl),
+[cshancock](https://github.com/cshancock),
+[gregor-d](https://github.com/gregor-d),
+[jasongrahn](https://github.com/jasongrahn),
+[p-kono](https://github.com/p-kono),
+[pokyah](https://github.com/pokyah),
+[schuetzingit](https://github.com/schuetzingit),
+[sdesabbata](https://github.com/sdesabbata),
+[tim-salabim](https://github.com/tim-salabim),
+[tszberkowitz](https://github.com/tszberkowitz).
 
 During the project we aim to contribute ‘upstream’ to the packages that
 make geocomputation with R possible. This impact is recorded in
@@ -74,10 +96,11 @@ make geocomputation with R possible. This impact is recorded in
 
 ## Reproducing the book
 
-To ease reproducibility, this book is also a package. Installing it from
-GitHub will ensure all dependencies to build the book are available on
-your computer (you need
-[**remotes**](https://github.com/r-lib/remotes/)):
+To ease reproducibility, we created the `geocompkg` package. Installing
+it from GitHub will install all the R packages needed build the book
+(you will a computer with necessary [system
+dependencies](https://github.com/r-spatial/sf#installing) and the
+[**remotes**](https://github.com/r-lib/remotes/) package installed):
 
 ``` r
 install.packages("remotes")
@@ -97,63 +120,62 @@ browseURL("_book/index.html") # to view it
 ```
 
 <!-- The code associated with each chapter is saved in the `code/chapters/` folder. -->
-
 <!-- `source("code/chapters/07-transport.R")` runs run the code chunks in chapter 7, for example. -->
-
 <!-- These R scripts are generated with the follow command which wraps `knitr::purl()`: -->
 
-## Running geocompr code in docker
+## Geocompr in binder
 
-To ease reproducibility we have set-up a docker image
-([robinlovelace/geocompr](https://hub.docker.com/r/robinlovelace/geocompr/)
-on docker hub) containing all the dependencies needed to reproduce the
-book. After you have [installed
+For many people the quickest way to get started with Geocomputation with
+R is in your web browser via Binder. To see an interactive RStudio
+Server instance click on the following button, which will open
+[mybinder.org](https://mybinder.org/v2/gh/robinlovelace/geocompr/master?urlpath=rstudio)
+with an R installation that has all the dependencies needed to reproduce
+the book:
+
+[![Launch Rstudio
+Binder](http://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/robinlovelace/geocompr/master?urlpath=rstudio)
+
+You can also have a play with the repo in RStudio Cloud by clicking on
+this link (requires log-in):
+
+[![Launch Rstudio
+Cloud](images/cloud.png)](https://rstudio.cloud/project/1642300)
+
+## Geocomputation with R in a Docker container
+
+To ease reproducibility we have made Docker images available, at
+[geocompr/geocompr](https://hub.docker.com/r/geocompr/geocompr/) on
+DockerHub. These images allow you to explore Geocomputation with R in a
+virtual machine that has up-to-date dependencies.
+
+After you have [installed
 docker](https://www.docker.com/community-edition#/download) and set-it
 up on [your
 computer](https://docs.docker.com/install/linux/linux-postinstall/) you
-can start a rocker-docker RStudio Server version by running:
+can start RStudio Server without a password (see the [Rocker
+project](https://www.rocker-project.org/use/managing_users/) for info on
+how to add a password and other security steps for public-facing
+servers):
 
 ``` sh
-docker run -p 8787:8787 -e DISABLE_AUTH=TRUE robinlovelace/geocompr
+docker run -p 8787:8787 -e DISABLE_AUTH=TRUE geocompr/geocompr
 ```
 
 If it worked you should be able to open-up RStudio server by opening a
 browser and navigating to <http://localhost:8787/> resulting in an
 up-to-date version of R and RStudio running in a container.
 
-On the other hand, you could also start a plain R session running:
+Start a plain R session running:
 
 ``` sh
-docker run -it robinlovelace/geocompr R
+docker run -it geocompr/geocompr R
 ```
 
-To reproduce the entire book in the docker container, you will also need
-to mount your local geocompr repository with the following steps
-(resulting in output shown below):
-
-``` bash
-# download repo with Windows Powershell or a Unix terminal
-git clone https://github.com/Robinlovelace/geocompr.git 
-# or download manually from here:
-# https://github.com/Robinlovelace/geocompr/archive/master.zip
-cd geocompr # navigate into the repo
-# on linux and mac:
-docker run -d -p 8787:8787 -e DISABLE_AUTH=TRUE -v $(pwd):/home/rstudio/geocompr  robinlovelace/geocompr
-# on windows:
-docker run -d -p 8787:8787 -v ${pwd}:/home/rstudio/data -e DISABLE_AUTH=TRUE robinlovelace/geocompr
-```
-
-![](https://user-images.githubusercontent.com/1825120/39538109-9b50e7ac-4e33-11e8-93b3-e00e95a79294.png)
-
-If you see something like this after following the steps above,
-congratulations: it worked\! See
-[github.com/rocker-org](https://github.com/rocker-org/rocker/wiki/Using-the-RStudio-image#running-rstudio-server)
-for more info.
-
-From this point to *build* the book you can open projects in the
-`geocompr` directory from the project box in the top-right hand corner,
-and knit `index.Rmd` with the little `knit` button above the the RStudio
-script panel (`Ctl+Shift+B` should do the same job).
+See the
+[geocompr/docker](https://github.com/geocompr/docker#geocomputation-with-r-in-docker)
+repo for details, including how to share volumes between your computer
+and the Docker image, for using geographic R packages on your own data
+and for information on available tags.
 
 ## Reproducing this README
 
@@ -172,10 +194,10 @@ removed from the main book build to reduce package dependencies and the
 book’s build time:
 
 ``` r
-# source("code/cranlogs.R")
-# source("code/sf-revdep.R")
-# source("code/08-urban-animation.R")
-# source("code/08-map-pkgs.R")
+source("code/cranlogs.R")
+source("code/sf-revdep.R")
+source("code/08-urban-animation.R")
+source("code/08-map-pkgs.R")
 ```
 
 Note: the `.Rproj` file is configured to build a website not a single
@@ -187,14 +209,9 @@ use the following command:
 rmarkdown::render("README.Rmd", output_format = "github_document", output_file = "README.md")
 ```
 
-## Book statistics
-
-An indication of the book’s progress over time is illustrated below (to
-be updated roughly every week as the book progresses).
-
-![](figures/bookstats-1.png)<!-- -->
-
-Book statistics: estimated number of pages per chapter over time.
+<!-- ## Book statistics -->
+<!-- An indication of the book's progress over time is illustrated below (to be updated roughly every week as the book progresses). -->
+<!-- Book statistics: estimated number of pages per chapter over time. -->
 
 ## Citations
 
@@ -243,53 +260,57 @@ GitHub repo
 ## References
 
 ``` r
+# remotes::install_github("gadenbuie/regexplain")
+# regexplain::regexplain_file("extdata/package_list.csv")
+pattern = " \\[[^\\}]*\\]" # perl=TRUE
+pkg_df$Title = gsub(pattern = pattern, replacement = "", x = pkg_df$Title, perl = TRUE)
 knitr::kable(pkg_df)
 ```
 
-| Name              | Title                                                                                     | version    |
-| :---------------- | :---------------------------------------------------------------------------------------- | :--------- |
-| bookdown          | Authoring Books and Technical Documents with R Markdown \[@R-bookdown\]                   | 0.7        |
-| cartogram         | Create Cartograms with R \[@R-cartogram\]                                                 | 0.1.0      |
-| dismo             | Species Distribution Modeling \[@R-dismo\]                                                | 1.1.4      |
-| geosphere         | Spherical Trigonometry \[@R-geosphere\]                                                   | 1.5.7      |
-| ggmap             | Spatial Visualization with ggplot2 \[@R-ggmap\]                                           | 2.6.1      |
-| ggplot2           | Create Elegant Data Visualisations Using the Grammar of Graphics \[@R-ggplot2\]           | 3.0.0.9000 |
-| gstat             | Spatial and Spatio-Temporal Geostatistical Modelling, Prediction \[@R-gstat\]             | 1.1.6      |
-| historydata       | Datasets for Historians \[@R-historydata\]                                                | 0.2.9001   |
-| htmlwidgets       | HTML Widgets for R \[@R-htmlwidgets\]                                                     | 1.2        |
-| kableExtra        | Construct Complex Table with ‘kable’ and Pipe Syntax \[@R-kableExtra\]                    | 0.9.0      |
-| kernlab           | Kernel-Based Machine Learning Lab \[@R-kernlab\]                                          | 0.9.26     |
-| knitr             | A General-Purpose Package for Dynamic Report Generation in R \[@R-knitr\]                 | 1.20       |
-| latticeExtra      | Extra Graphical Utilities Based on Lattice \[@R-latticeExtra\]                            | 0.6.28     |
-| leaflet           | Create Interactive Web Maps with the JavaScript ‘Leaflet’ \[@R-leaflet\]                  | 2.0.1      |
-| link2GI           | Linking Geographic Information Systems, Remote Sensing and Other \[@R-link2GI\]           | 0.3.0      |
-| lwgeom            | Bindings to Selected ‘liblwgeom’ Functions for Simple Features \[@R-lwgeom\]              | 0.1.4      |
-| mapview           | Interactive Viewing of Spatial Data in R \[@R-mapview\]                                   | 2.4.0      |
-| microbenchmark    | Accurate Timing Functions \[@R-microbenchmark\]                                           | 1.4.4      |
-| mlr               | Machine Learning in R \[@R-mlr\]                                                          | 2.12.1     |
-| osmdata           | Import ‘OpenStreetMap’ Data as Simple Features or Spatial \[@R-osmdata\]                  | 0.0.7      |
-| pROC              | Display and Analyze ROC Curves \[@R-pROC\]                                                | 1.12.1     |
-| ranger            | A Fast Implementation of Random Forests \[@R-ranger\]                                     | 0.10.1     |
-| raster            | Geographic Data Analysis and Modeling \[@R-raster\]                                       | 2.6.7      |
-| rcartocolor       | ‘CARTOColors’ Palettes \[@R-rcartocolor\]                                                 | 0.0.22     |
-| rgdal             | Bindings for the ‘Geospatial’ Data Abstraction Library \[@R-rgdal\]                       | 1.3.3      |
-| rgeos             | Interface to Geometry Engine - Open Source (‘GEOS’) \[@R-rgeos\]                          | 0.3.28     |
-| rgrass7           | Interface Between GRASS 7 Geographical Information System and R \[@R-rgrass7\]            | 0.1.10     |
-| rmapshaper        | Client for ‘mapshaper’ for ‘Geospatial’ Operations \[@R-rmapshaper\]                      | 0.4.0      |
-| rmarkdown         | Dynamic Documents for R \[@R-rmarkdown\]                                                  | 1.10       |
-| rnaturalearth     | World Map Data from Natural Earth \[@R-rnaturalearth\]                                    | 0.2.0      |
-| rnaturalearthdata | World Vector Map Data from Natural Earth Used in ‘rnaturalearth’ \[@R-rnaturalearthdata\] | 0.1.0      |
-| RPostgreSQL       | R Interface to the ‘PostgreSQL’ Database System \[@R-RPostgreSQL\]                        | 0.6.2      |
-| RQGIS             | Integrating R with QGIS \[@R-RQGIS\]                                                      | 1.0.3      |
-| RSAGA             | SAGA Geoprocessing and Terrain Analysis \[@R-RSAGA\]                                      | 1.1.0      |
-| sf                | Simple Features for R \[@R-sf\]                                                           | 0.6.3      |
-| sp                | Classes and Methods for Spatial Data \[@R-sp\]                                            | 1.3.1      |
-| spData            | Datasets for Spatial Analysis \[@R-spData\]                                               | 0.2.9.0    |
-| spDataLarge       | Large datasets for spatial analysis \[@R-spDataLarge\]                                    | 0.2.7.0    |
-| stplanr           | Sustainable Transport Planning \[@R-stplanr\]                                             | 0.2.4.9000 |
-| tabularaster      | Tidy Tools for ‘Raster’ Data \[@R-tabularaster\]                                          | 0.5.0      |
-| tidyverse         | Easily Install and Load the ‘Tidyverse’ \[@R-tidyverse\]                                  | 1.2.1      |
-| tmap              | Thematic Maps \[@R-tmap\]                                                                 | 2.0.1      |
-| tmaptools         | Thematic Map Tools \[@R-tmaptools\]                                                       | 2.0.1      |
-| tree              | Classification and Regression Trees \[@R-tree\]                                           | 1.0.39     |
-| vegan             | Community Ecology Package \[@R-vegan\]                                                    | 2.5.2      |
+| Name              | Title                                                            | version    |
+|:------------------|:-----------------------------------------------------------------|:-----------|
+| bookdown          | Authoring Books and Technical Documents with R Markdown          | 0.7        |
+| cartogram         | Create Cartograms with R                                         | 0.1.0      |
+| dismo             | Species Distribution Modeling                                    | 1.1.4      |
+| geosphere         | Spherical Trigonometry                                           | 1.5.7      |
+| ggmap             | Spatial Visualization with ggplot2                               | 2.6.1      |
+| ggplot2           | Create Elegant Data Visualisations Using the Grammar of Graphics | 3.0.0.9000 |
+| gstat             | Spatial and Spatio-Temporal Geostatistical Modelling, Prediction | 1.1.6      |
+| historydata       | Datasets for Historians                                          | 0.2.9001   |
+| htmlwidgets       | HTML Widgets for R                                               | 1.2        |
+| kableExtra        | Construct Complex Table with ‘kable’ and Pipe Syntax             | 0.9.0      |
+| kernlab           | Kernel-Based Machine Learning Lab                                | 0.9.26     |
+| knitr             | A General-Purpose Package for Dynamic Report Generation in R     | 1.20       |
+| latticeExtra      | Extra Graphical Utilities Based on Lattice                       | 0.6.28     |
+| leaflet           | Create Interactive Web Maps with the JavaScript ‘Leaflet’        | 2.0.1      |
+| link2GI           | Linking Geographic Information Systems, Remote Sensing and Other | 0.3.0      |
+| lwgeom            | Bindings to Selected ‘liblwgeom’ Functions for Simple Features   | 0.1.4      |
+| mapview           | Interactive Viewing of Spatial Data in R                         | 2.4.0      |
+| microbenchmark    | Accurate Timing Functions                                        | 1.4.4      |
+| mlr               | Machine Learning in R                                            | 2.12.1     |
+| osmdata           | Import ‘OpenStreetMap’ Data as Simple Features or Spatial        | 0.0.7      |
+| pROC              | Display and Analyze ROC Curves                                   | 1.12.1     |
+| ranger            | A Fast Implementation of Random Forests                          | 0.10.1     |
+| raster            | Geographic Data Analysis and Modeling                            | 2.6.7      |
+| rcartocolor       | ‘CARTOColors’ Palettes                                           | 0.0.22     |
+| rgdal             | Bindings for the ‘Geospatial’ Data Abstraction Library           | 1.3.3      |
+| rgeos             | Interface to Geometry Engine - Open Source (‘GEOS’)              | 0.3.28     |
+| rgrass7           | Interface Between GRASS 7 Geographical Information System and R  | 0.1.10     |
+| rmapshaper        | Client for ‘mapshaper’ for ‘Geospatial’ Operations               | 0.4.0      |
+| rmarkdown         | Dynamic Documents for R                                          | 1.10       |
+| rnaturalearth     | World Map Data from Natural Earth                                | 0.2.0      |
+| rnaturalearthdata | World Vector Map Data from Natural Earth Used in ‘rnaturalearth’ | 0.1.0      |
+| RPostgreSQL       | R Interface to the ‘PostgreSQL’ Database System                  | 0.6.2      |
+| RQGIS             | Integrating R with QGIS                                          | 1.0.3      |
+| RSAGA             | SAGA Geoprocessing and Terrain Analysis                          | 1.1.0      |
+| sf                | Simple Features for R                                            | 0.6.3      |
+| sp                | Classes and Methods for Spatial Data                             | 1.3.1      |
+| spData            | Datasets for Spatial Analysis                                    | 0.2.9.0    |
+| spDataLarge       | Large datasets for spatial analysis                              | 0.2.7.0    |
+| stplanr           | Sustainable Transport Planning                                   | 0.2.4.9000 |
+| tabularaster      | Tidy Tools for ‘Raster’ Data                                     | 0.5.0      |
+| tidyverse         | Easily Install and Load the ‘Tidyverse’                          | 1.2.1      |
+| tmap              | Thematic Maps                                                    | 2.0.1      |
+| tmaptools         | Thematic Map Tools                                               | 2.0.1      |
+| tree              | Classification and Regression Trees                              | 1.0.39     |
+| vegan             | Community Ecology Package                                        | 2.5.2      |
